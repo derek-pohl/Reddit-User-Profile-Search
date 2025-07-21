@@ -1,16 +1,11 @@
+// Reddit User Profile Search - Options Script
+
 const apiKeyInput = document.getElementById('apiKey');
 const baseUrlInput = document.getElementById('baseUrl');
 const modelInput = document.getElementById('model');
 const rateLimitInput = document.getElementById('rateLimit');
-const whitelistedSubsInput = document.getElementById('whitelistedSubs');
-const blockDisplayModeInput = document.getElementById('blockDisplayMode');
-const scoreFilterModeSelect = document.getElementById('scoreFilterMode');
-const scoreThresholdInput = document.getElementById('scoreThreshold');
-const statusEl = document.getElementById('status');
-const logContainer = document.getElementById('logContainer');
-const refreshLogButton = document.getElementById('refreshLogButton');
-const clearLogButton = document.getElementById('clearLogButton');
-const conditionalFiltersSection = document.getElementById('conditionalFiltersSection');
+const maxPostsInput = document.getElementById('maxPosts');
+const maxCommentsInput = document.getElementById('maxComments');
 
 // Tab and content filter elements
 const tabButtons = document.querySelectorAll('.tab-button');
@@ -29,11 +24,6 @@ tabButtons.forEach(button => {
         // Update tab content
         tabContents.forEach(content => content.classList.remove('active'));
         document.getElementById(`${targetTab}-tab`).classList.add('active');
-        
-        // Hide save bar on activity log tab
-        if (targetTab === 'activity') {
-
-        }
     });
 });
 
@@ -52,32 +42,8 @@ filterToggles.forEach(toggle => {
     });
 });
 
-// Initialize score filter mode handling
-function updateScoreFilterUI() {
-    const mode = scoreFilterModeSelect.value;
-    
-    if (mode === 'conditional') {
-        conditionalFiltersSection.classList.remove('hidden');
-        // Set appropriate threshold suggestion for conditional mode
-        if (scoreThresholdInput.value === '0') {
-            scoreThresholdInput.value = '1';
-        }
-    } else {
-        conditionalFiltersSection.classList.add('hidden');
-        // Set appropriate threshold suggestion for hide mode
-        if (mode === 'hide' && scoreThresholdInput.value === '1') {
-            scoreThresholdInput.value = '0';
-        }
-    }
-}
-
-scoreFilterModeSelect.addEventListener('change', () => {
-    updateScoreFilterUI();
-    saveOptions();
-});
-
 // Show save bar when form inputs change
-[apiKeyInput, baseUrlInput, modelInput, rateLimitInput, whitelistedSubsInput, scoreThresholdInput].forEach(input => {
+[apiKeyInput, baseUrlInput, modelInput, rateLimitInput, maxPostsInput, maxCommentsInput].forEach(input => {
     if (input) {
         input.addEventListener('input', () => {
             saveOptions();
@@ -85,23 +51,13 @@ scoreFilterModeSelect.addEventListener('change', () => {
     }
 });
 
-blockDisplayModeInput.addEventListener('input', () => {
-    saveOptions();
-});
-
 function saveOptions() {
     const apiKey = apiKeyInput.value;
     const baseUrl = baseUrlInput.value;
     const model = modelInput.value;
     const rateLimit = parseInt(rateLimitInput.value) || 60;
-    const scoreFilterMode = scoreFilterModeSelect.value;
-    const scoreThreshold = parseInt(scoreThresholdInput.value) || 1;
-    
-    // Get whitelisted subreddits
-    const whitelistedSubs = whitelistedSubsInput.value
-        .split('\n')
-        .map(sub => sub.trim().toLowerCase())
-        .filter(sub => sub.length > 0);
+    const maxPosts = parseInt(maxPostsInput.value) || 50;
+    const maxComments = parseInt(maxCommentsInput.value) || 50;
     
     // Get enabled filters
     const enabledFilters = {};
@@ -111,8 +67,18 @@ function saveOptions() {
     });
     
     // Validate required fields
-    if (!apiKey || !baseUrl || !model) {
-        showStatus('API Key, Base URL, and Model are required!', 'error');
+    if (!apiKey) {
+        showStatus('API Key is required!', 'error');
+        return;
+    }
+    
+    if (!baseUrl) {
+        showStatus('Base URL is required!', 'error');
+        return;
+    }
+    
+    if (!model) {
+        showStatus('Model is required!', 'error');
         return;
     }
     
@@ -122,36 +88,61 @@ function saveOptions() {
         return;
     }
     
-    // Validate score threshold
-    if (scoreThreshold < -100 || scoreThreshold > 100) {
-        showStatus('Score threshold must be between -100 and 100!', 'error');
+    // Validate max posts/comments
+    if (maxPosts < 1 || maxPosts > 100) {
+        showStatus('Maximum posts must be between 1 and 100!', 'error');
+        return;
+    }
+    
+    if (maxComments < 1 || maxComments > 100) {
+        showStatus('Maximum comments must be between 1 and 100!', 'error');
         return;
     }
 
-    const darkMode = document.querySelector('[data-toggle="dark-mode"]').classList.contains('enabled');
-    const automaticDarkMode = document.querySelector('[data-toggle="automatic-dark-mode"]').classList.contains('enabled');
-    const blockDisplayMode = parseInt(blockDisplayModeInput.value);
+    const darkMode = document.querySelector('[data-toggle="dark-mode"]')?.classList.contains('enabled') || false;
+    const automaticDarkMode = document.querySelector('[data-toggle="automatic-dark-mode"]')?.classList.contains('enabled') || false;
+    const extensionEnabled = document.querySelector('[data-toggle="extension-enabled"]')?.classList.contains('enabled') || true;
+    const autoLoad = document.querySelector('[data-toggle="auto-load"]')?.classList.contains('enabled') || false;
     
     browser.storage.sync.set({ 
         apiKey, 
         baseUrl, 
         model, 
-        rateLimit, 
-        enabledFilters, 
-        whitelistedSubs,
-        scoreFilterMode,
-        scoreThreshold,
+        rateLimit,
+        maxPosts,
+        maxComments,
+        extensionEnabled,
+        autoLoad,
         darkMode,
-        automaticDarkMode,
-        blockDisplayMode
+        automaticDarkMode
     }).then(() => {
         showStatus('Settings saved successfully!', 'success');
+        
+        // Notify content scripts about settings change
+        browser.tabs.query({ url: "*://*.reddit.com/*" }).then(tabs => {
+            tabs.forEach(tab => {
+                browser.tabs.sendMessage(tab.id, {
+                    action: 'settingsChanged'
+                }).catch(() => {
+                    // Tab might not have content script loaded
+                });
+            });
+        });
     }).catch(error => {
         showStatus('Failed to save settings: ' + error.message, 'error');
     });
 }
 
 function showStatus(message, type) {
+    // Create status element if it doesn't exist
+    let statusEl = document.getElementById('status');
+    if (!statusEl) {
+        statusEl = document.createElement('div');
+        statusEl.id = 'status';
+        statusEl.className = 'status-message';
+        document.body.appendChild(statusEl);
+    }
+    
     statusEl.textContent = message;
     statusEl.className = `status-message show ${type}`;
     setTimeout(() => {
@@ -164,79 +155,44 @@ function restoreOptions() {
         'apiKey', 
         'baseUrl', 
         'model', 
-        'rateLimit', 
-        'enabledFilters', 
-        'whitelistedSubs',
-        'scoreFilterMode',
-        'scoreThreshold',
+        'rateLimit',
+        'maxPosts',
+        'maxComments',
+        'extensionEnabled',
+        'autoLoad',
         'darkMode',
-        'automaticDarkMode',
-        'blockDisplayMode'
+        'automaticDarkMode'
     ]).then((result) => {
         apiKeyInput.value = result.apiKey || '';
-        baseUrlInput.value = result.baseUrl || 'https://generativelanguage.googleapis.com/v1beta/openai';
-        modelInput.value = result.model || 'gemma-3-27b-it';
-        rateLimitInput.value = result.rateLimit || 30;
-        scoreFilterModeSelect.value = result.scoreFilterMode || 'conditional';
+        baseUrlInput.value = result.baseUrl || 'https://generativelanguage.googleapis.com/v1beta';
+        modelInput.value = result.model || 'gemini-1.5-flash';
+        rateLimitInput.value = result.rateLimit || 60;
+        maxPostsInput.value = result.maxPosts || 50;
+        maxCommentsInput.value = result.maxComments || 50;
         
-        // Set default threshold based on mode if not previously set
-        const defaultThreshold = (result.scoreFilterMode || 'conditional') === 'hide' ? 0 : 1;
-        scoreThresholdInput.value = result.scoreThreshold !== undefined ? result.scoreThreshold : defaultThreshold;
+        // Restore toggle states
+        const extensionEnabled = result.extensionEnabled !== false; // Default to true
+        const autoLoad = result.autoLoad || false;
+        const darkMode = result.darkMode || false;
+        const automaticDarkMode = result.automaticDarkMode !== false; // Default to true
         
-        // Restore whitelisted subreddits
-        const whitelistedSubs = result.whitelistedSubs || [];
-        whitelistedSubsInput.value = whitelistedSubs.join('\n');
-        
-        // Restore filter states with new defaults for score-based filtering
-        const enabledFilters = result.enabledFilters || {
-            'extension-enabled': true,
-            'json-output': false,
-            // Always check filters (regardless of score)
-            politics: false,
-            unfunny: false,
-            ragebait: false,
-            loweffort: false,
-            advertisement: false,
-            // Conditional filters (only for low-scoring posts)
-            'conditional-politics': false,
-            'conditional-unfunny': false,
-            'conditional-ragebait': false,
-            'conditional-loweffort': false,
-            'conditional-advertisement': false,
-            // Page settings
-            circlejerk: false,
-            'home-page': true,
-            'popular-page': true,
-            'all-page': true,
-            'subreddit-page': true
-        };
-        
-        filterToggles.forEach(toggle => {
-            const filterId = toggle.dataset.toggle;
-            
-            if (enabledFilters[filterId]) {
-                toggle.classList.add('enabled');
-            } else {
-                toggle.classList.remove('enabled');
-            }
-        });
-
-        // Restore dark mode settings
-        if (result.darkMode) {
-            document.querySelector('[data-toggle="dark-mode"]').classList.add('enabled');
+        if (extensionEnabled) {
+            document.querySelector('[data-toggle="extension-enabled"]')?.classList.add('enabled');
         }
-        // Set automatic dark mode to true by default
-        const automaticDarkMode = result.automaticDarkMode !== undefined ? result.automaticDarkMode : true;
+        
+        if (autoLoad) {
+            document.querySelector('[data-toggle="auto-load"]')?.classList.add('enabled');
+        }
+        
+        if (darkMode) {
+            document.querySelector('[data-toggle="dark-mode"]')?.classList.add('enabled');
+        }
+        
         if (automaticDarkMode) {
-            document.querySelector('[data-toggle="automatic-dark-mode"]').classList.add('enabled');
+            document.querySelector('[data-toggle="automatic-dark-mode"]')?.classList.add('enabled');
         }
-
-        blockDisplayModeInput.value = result.blockDisplayMode !== undefined ? result.blockDisplayMode : 2;
 
         applyTheme();
-        
-        // Update UI based on score filter mode
-        updateScoreFilterUI();
     });
 }
 
@@ -244,65 +200,14 @@ function applyTheme() {
     const darkModeToggle = document.querySelector('[data-toggle="dark-mode"]');
     const automaticDarkModeToggle = document.querySelector('[data-toggle="automatic-dark-mode"]');
 
-    const manualDarkMode = darkModeToggle.classList.contains('enabled');
-    const automaticDarkMode = automaticDarkModeToggle.classList.contains('enabled');
+    const manualDarkMode = darkModeToggle?.classList.contains('enabled') || false;
+    const automaticDarkMode = automaticDarkModeToggle?.classList.contains('enabled') !== false; // Default to true
 
     if (automaticDarkMode) {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         document.documentElement.classList.toggle('dark-mode', prefersDark);
     } else {
         document.documentElement.classList.toggle('dark-mode', manualDarkMode);
-    }
-}
-
-async function renderLogs() {
-    logContainer.innerHTML = 'Loading...';
-    
-    try {
-        const { activityLog = [] } = await browser.storage.local.get('activityLog');
-
-        if (activityLog.length === 0) {
-            logContainer.innerHTML = 'No activity recorded yet.';
-            return;
-        }
-
-        logContainer.innerHTML = ''; // Clear previous logs
-
-        for (const entry of activityLog) {
-            const entryDiv = document.createElement('div');
-            entryDiv.className = 'log-entry';
-
-            const timestamp = new Date(entry.timestamp).toLocaleString();
-
-            entryDiv.innerHTML = `
-                <p><strong>Timestamp:</strong> ${timestamp}</p>
-                <p><strong>Post:</strong> "${escapeHtml(entry.post.title)}" in ${escapeHtml(entry.post.subreddit)}</p>
-                <p><strong>Score:</strong> ${entry.post.score !== undefined && entry.post.score !== null ? entry.post.score : 'N/A'} upvotes</p>
-                <p><strong>Action:</strong> ${escapeHtml(entry.action)}</p>
-                <p><strong>Reason:</strong> ${escapeHtml(entry.reason)}</p>
-                <details>
-                    <summary>View API Request & Response</summary>
-                    <h4>Request Prompt:</h4>
-                    <pre>${escapeHtml(entry.apiData?.prompt || 'N/A')}</pre>
-                    <h4>Full API Response:</h4>
-                    <pre>${escapeHtml(JSON.stringify(entry.apiData?.responseData || {note: "No response data"}, null, 2))}</pre>
-                </details>
-            `;
-            logContainer.appendChild(entryDiv);
-        }
-    } catch (error) {
-        logContainer.innerHTML = `Error loading logs: ${escapeHtml(error.message)}`;
-    }
-}
-
-function clearLogs() {
-    if (confirm('Are you sure you want to clear all activity logs?')) {
-        browser.storage.local.remove('activityLog').then(() => {
-            renderLogs();
-            showStatus('Activity logs cleared!', 'success');
-        }).catch(error => {
-            showStatus('Failed to clear logs: ' + error.message, 'error');
-        });
     }
 }
 
@@ -316,40 +221,32 @@ function escapeHtml(unsafe) {
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     restoreOptions();
-    renderLogs();
-    updateScoreFilterUI();
 
     const darkModeToggle = document.querySelector('[data-toggle="dark-mode"]');
     const automaticDarkModeToggle = document.querySelector('[data-toggle="automatic-dark-mode"]');
 
-    darkModeToggle.addEventListener('click', applyTheme);
-    automaticDarkModeToggle.addEventListener('click', applyTheme);
+    darkModeToggle?.addEventListener('click', applyTheme);
+    automaticDarkModeToggle?.addEventListener('click', applyTheme);
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 });
 
-// Event listeners
-refreshLogButton.addEventListener('click', renderLogs);
-clearLogButton.addEventListener('click', clearLogs);
-
-document.getElementById('exportButton').addEventListener('click', exportSettings);
-document.getElementById('importButton').addEventListener('click', () => {
-    document.getElementById('importFile').click();
+// Export/Import functionality
+document.getElementById('exportButton')?.addEventListener('click', exportSettings);
+document.getElementById('importButton')?.addEventListener('click', () => {
+    document.getElementById('importFile')?.click();
 });
-document.getElementById('importFile').addEventListener('change', importSettings);
-
-
-// --- Data Management ---
+document.getElementById('importFile')?.addEventListener('change', importSettings);
 
 async function exportSettings() {
     try {
-        const settings = await browser.storage.sync.get(null); // Get all settings
+        const settings = await browser.storage.sync.get(null);
         const settingsJson = JSON.stringify(settings, null, 2);
         const blob = new Blob([settingsJson], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
 
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'noise-filter-settings.json';
+        a.download = 'reddit-profile-analyzer-settings.json';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -373,8 +270,8 @@ function importSettings(event) {
             const settings = JSON.parse(e.target.result);
             
             // Basic validation
-            if (typeof settings !== 'object' || settings === null || !settings.apiKey) {
-                throw new Error('Invalid or corrupted settings file.');
+            if (typeof settings !== 'object' || settings === null) {
+                throw new Error('Invalid settings file format.');
             }
 
             // Clear existing settings before importing
@@ -400,9 +297,10 @@ function importSettings(event) {
     reader.readAsText(file);
 }
 
-
+// Listen for storage changes
 browser.storage.onChanged.addListener((changes, area) => {
-    if (area === 'sync' && changes.enabledFilters) {
+    if (area === 'sync') {
+        // Restore options when settings change
         restoreOptions();
     }
 });

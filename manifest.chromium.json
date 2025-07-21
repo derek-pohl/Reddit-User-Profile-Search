@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Noise Filter for Reddit",
-  "version": "1.1.0",
-  "description": "A browser extension that blocks content that is of no intrinsic value to the user.",
+  "name": "Reddit User Profile Search",
+  "version": "1.0.0",
+  "description": "A browser extension that analyzes Reddit user profiles using the Gemini API.",
 
   "permissions": [
     "storage"
@@ -35,21 +35,15 @@
   "commands": {
     "toggle-extension": {
       "suggested_key": {
-        "default": "Alt+Shift+E"
+        "default": "Alt+Shift+A"
       },
-      "description": "Toggle the extension on/off"
+      "description": "Toggle the profile analyzer on/off"
     },
-    "toggle-home-page": {
-      "description": "Toggle filtering on the Home page"
-    },
-    "toggle-popular-page": {
-      "description": "Toggle filtering on r/popular"
-    },
-    "toggle-all-page": {
-      "description": "Toggle filtering on r/all"
-    },
-    "toggle-subreddit-page": {
-      "description": "Toggle filtering on individual subreddits"
+    "analyze-profile": {
+      "suggested_key": {
+        "default": "Alt+Shift+P"
+      },
+      "description": "Analyze current user profile"
     }
   }
 }
