@@ -1,0 +1,19 @@
+{
+  "name": "noise-filter-for-reddit",
+  "version": "1.1.0",
+  "description": "A browser extention that blocks content that is of no intrinsic value to the user.",
+  "private": true,
+  "scripts": {
+    "clean": "shx rm -rf dist",
+    "build:chromium": "npm run clean && shx mkdir -p dist/chromium && shx cp -r src/* dist/chromium/ && shx cp manifest.chromium.json dist/chromium/manifest.json",
+    "build:firefox": "npm run clean && shx mkdir -p dist/firefox && shx cp -r src/* dist/firefox/ && shx cp manifest.firefox.json dist/firefox/manifest.json",
+    "build": "npm run build:chromium && npm run build:firefox"
+  },
+  "devDependencies": {
+    "shx": "^0.3.4",
+    "webextension-polyfill": "^0.12.0"
+  },
+  "dependencies": {
+    "web-ext": "^8.2.0"
+  }
+}

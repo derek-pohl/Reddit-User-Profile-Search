@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noise Filter Options</title>
+    <link rel="stylesheet" href="options.css">
+    <script src="dark_mode_init.js"></script>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="header-icon">🔇</div>
+                <div class="header-text">
+                    <h1>Noise Filter for Reddit</h1>
+                    <span class="version">v1.1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tabs-container">
+        <div class="tabs">
+            <button class="tab-button active" data-tab="settings">Settings</button>
+            <button class="tab-button" data-tab="activity">Activity Log</button>
+        </div>
+    </div>
+
+    
+
+    <div class="content-wrapper">
+        <!-- Settings Tab -->
+        <div class="tab-content active" id="settings-tab">
+            <div class="settings-container">
+                <!-- Extension Status -->
+                <section class="settings-section">
+                    <h2>Extension Status</h2>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Enable Noise Filter</label>
+                            <div class="setting-description">Turn the extension on or off. When disabled, no posts will be analyzed or filtered.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="extension-enabled"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- API Configuration -->
+                <section class="settings-section">
+                    <h2>API Configuration - <a href="https://raw.githubusercontent.com/derek-pohl/Noise-Filter-for-Reddit/main/APIConfigGuide.md" target="_blank" rel="noopener noreferrer">API Configuration Guide (Recomended Setup, Free)</a></h2>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="apiKey">API Key</label>
+                            <div class="setting-description">Your AI service API key</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="password" id="apiKey" placeholder="Enter your API key">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="baseUrl">Base URL</label>
+                            <div class="setting-description">
+                                API endpoint URL<br>
+                                <small><strong>OpenAI:</strong> https://api.openai.com/v1<br>
+                                <strong>Gemini:</strong> https://generativelanguage.googleapis.com/v1beta/openai<br>
+                                <strong>Local:</strong> http://localhost:1234/v1</small>
+                            </div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="baseUrl" placeholder="https://generativelanguage.googleapis.com/v1beta/openai">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="model">Model</label>
+                            <div class="setting-description">AI model to use (e.g., gemma-3-27b-it, gpt-4o-mini)</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="text" id="model" placeholder="gemma-3-27b-it">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="rateLimit">Rate Limit</label>
+                            <div class="setting-description">Maximum API requests per minute (1-600)</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="number" id="rateLimit" placeholder="60" min="1" max="600" step="1">
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Force JSON Output</label>
+                            <div class="setting-description">Enable for services that support structured JSON output</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="json-output"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Score-Based Filtering -->
+                <section class="settings-section">
+                    <h2>Score-Based Filtering</h2>
+                    <div class="section-description">Configure how posts are filtered based on their score (upvotes minus downvotes).</div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Filtering Mode</label>
+                            <div class="setting-description">Choose how to filter posts based on their score</div>
+                        </div>
+                        <div class="setting-control">
+                            <select id="scoreFilterMode">
+                                <option value="all">Check all posts regardless of score</option>
+                                <option value="conditional" selected>Check low-scoring posts for specific content</option>
+                                <option value="hide">Hide posts below threshold (after checking "Always Check" filters)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="score-threshold-setting">
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label for="scoreThreshold">Score Threshold</label>
+                                <div class="setting-description">Posts at or below this score will be affected by the filtering mode</div>
+                            </div>
+                            <div class="setting-control">
+                                <input type="number" id="scoreThreshold" value="1" min="-100" max="100" step="1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="conditional-filters-section" id="conditionalFiltersSection">
+                        <h3>Content Filters for Low-Scoring Posts</h3>
+                        <div class="section-description">These filters will only apply to posts at or below the score threshold.</div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Political Content</label>
+                                <div class="setting-description">Block posts about political figures or parties in low-scoring posts</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="conditional-politics"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Unfunny Jokes</label>
+                                <div class="setting-description">Block cringe-worthy or unfunny humor in low-scoring posts</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="conditional-unfunny"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Rage Bait</label>
+                                <div class="setting-description">Block content designed to provoke anger in low-scoring posts</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="conditional-ragebait"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Low-Effort Content</label>
+                                <div class="setting-description">Block easily Google-able questions in low-scoring posts</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="conditional-loweffort"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Advertisements</label>
+                                <div class="setting-description">Block promotional user posts in low-scoring posts (not Reddit ads)</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="conditional-advertisement"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="always-check-section">
+                        <h3>Always Check Regardless of Score</h3>
+                        <div class="section-description">These filters will apply to all posts regardless of their score.</div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Political Content</label>
+                                <div class="setting-description">Block posts about political figures or parties</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="politics"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Unfunny Jokes</label>
+                                <div class="setting-description">Block cringe-worthy or unfunny humor</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="unfunny"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Rage Bait</label>
+                                <div class="setting-description">Block content designed to provoke anger</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="ragebait"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Low-Effort Content</label>
+                                <div class="setting-description">Block easily Google-able questions</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="loweffort"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="setting-row">
+                            <div class="setting-info">
+                                <label>Advertisements</label>
+                                <div class="setting-description">Block promotional user posts (not Reddit ads)</div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="toggle-switch" data-toggle="advertisement"></div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Page Filtering -->
+                <section class="settings-section">
+                    <h2>Page Filtering</h2>
+                    <div class="section-description">Configure which Reddit pages the extension should work on.</div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Reddit Home Page</label>
+                            <div class="setting-description">Filter on reddit.com home feed</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="home-page"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Popular Page</label>
+                            <div class="setting-description">Filter on r/popular</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="popular-page"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>All Page</label>
+                            <div class="setting-description">Filter on r/all</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="all-page"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Individual Subreddits</label>
+                            <div class="setting-description">Filter when browsing specific subreddits</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="subreddit-page"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Appearance -->
+                <section class="settings-section">
+                    <h2>Appearance</h2>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Enable Dark Mode</label>
+                            <div class="setting-description">Reduce eye strain in low-light environments.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch" data-toggle="dark-mode"></div>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Automatic Dark Mode</label>
+                            <div class="setting-description">Automatically switch between light and dark themes based on your system settings.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch" data-toggle="automatic-dark-mode"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Blocked Post Display -->
+                <section class="settings-section">
+                    <h2>Blocked Post Display</h2>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="blockDisplayMode">How to display blocked posts</label>
+                            <div class="setting-description">Choose how blocked posts are visually handled.</div>
+                        </div>
+                        <div class="setting-control">
+                            <input type="range" id="blockDisplayMode" min="0" max="2" value="2" step="1">
+                            <div class="slider-labels">
+                                <span>Dim</span>
+                                <span>Blur</span>
+                                <span>Remove</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Subreddit Exceptions -->
+                <section class="settings-section">
+                    <h2>Subreddit Exceptions</h2>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label for="whitelistedSubs">Whitelisted Subreddits</label>
+                            <div class="setting-description">Subreddits to exclude from filtering (one per line, without r/ prefix)</div>
+                        </div>
+                        <div class="setting-control">
+                            <textarea id="whitelistedSubs" placeholder="AskReddit&#10;explainlikeimfive&#10;nostupidquestions" rows="4"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Filter Circlejerk Subreddits</label>
+                            <div class="setting-description">When disabled, "circlejerk" subreddits are automatically whitelisted</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="circlejerk"></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Data Management -->
+                <section class="settings-section">
+                    <h2>Data Management</h2>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Export Settings</label>
+                            <div class="setting-description">Save your current settings to a file.</div>
+                        </div>
+                        <div class="setting-control">
+                            <button id="exportButton" class="btn-primary">Export</button>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Import Settings</label>
+                            <div class="setting-description">Load settings from a file. This will overwrite your current settings.</div>
+                        </div>
+                        <div class="setting-control">
+                            <button id="importButton" class="btn-secondary">Import</button>
+                            <input type="file" id="importFile" accept=".json" style="display: none;">
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Activity Log Tab -->
+        <div class="tab-content" id="activity-tab">
+            <div class="activity-container">
+                <div class="activity-header">
+                    <h2>Activity Log</h2>
+                    <div class="activity-controls">
+                        <button id="refreshLogButton" class="btn-secondary">Refresh</button>
+                        <button id="clearLogButton" class="btn-danger">Clear Log</button>
+                    </div>
+                </div>
+                <div id="logContainer" class="log-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../lib/webextension-polyfill.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>
