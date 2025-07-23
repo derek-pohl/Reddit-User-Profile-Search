@@ -26,7 +26,7 @@ The Google Gemini API works best with this project, although any other OpenAI Co
 
 11. For the Rate Limit, enter: 30
 
-12. Make sure Force JSON Output is OFF, although it should be already.
+12. Set Maximum Posts and Comments to 0 for no limit, or any number you prefer.
 
 13. That's it! Now, adjust settings as needed below. Have fun!
 

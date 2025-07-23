@@ -1,5 +1,5 @@
 // Reddit User Profile Search - Content Script
-import "./lib/webextension-polyfill.js";
+// webextension-polyfill.js is loaded before this script in manifest.json
 
 let isExtensionEnabled = true;
 let currentUsername = null;
@@ -529,29 +529,38 @@ async function initializeExtension() {
 
     const username = detectUserProfile();
     console.log('Detected username:', username);
-    console.log('Current username:', currentUsername);
 
-    if (username && username !== currentUsername) {
-        console.log('Creating UI for user:', username);
+    // Update current username but don't auto-create UI
+    if (username) {
         currentUsername = username;
-
-        // Create analysis UI
-        createAnalysisUI(username);
-
-        // Auto-load data based on current page
-        const section = getProfileSection();
-        console.log('Profile section:', section);
-        if (section === 'posts') {
-            setTimeout(() => loadUserPosts(username), 2000);
-        } else if (section === 'comments') {
-            setTimeout(() => loadUserComments(username), 2000);
+        console.log('Ready for user:', username);
+    } else {
+        currentUsername = null;
+        // Remove UI if we're not on a profile page
+        if (analysisUI) {
+            console.log('Not on profile page, removing UI');
+            analysisUI.remove();
+            analysisUI = null;
         }
-    } else if (!username && analysisUI) {
-        console.log('Not on profile page, removing UI');
-        // Not on a profile page, remove UI
+    }
+}
+
+// Function to toggle UI visibility
+function toggleUI() {
+    console.log('Toggle UI called');
+    
+    if (!currentUsername) {
+        console.log('No username detected, cannot show UI');
+        return;
+    }
+    
+    if (analysisUI) {
+        console.log('UI exists, removing it');
         analysisUI.remove();
         analysisUI = null;
-        currentUsername = null;
+    } else {
+        console.log('Creating UI for user:', currentUsername);
+        createAnalysisUI(currentUsername);
     }
 }
 
@@ -582,7 +591,7 @@ history.replaceState = function (...args) {
 // Listen for popstate events
 window.addEventListener('popstate', handleUrlChange);
 
-// Listen for messages from background script
+// Listen for messages from background script and popup
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === 'toggleExtension') {
         isExtensionEnabled = message.enabled;
@@ -593,8 +602,69 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         } else if (isExtensionEnabled) {
             initializeExtension();
         }
+    } else if (message.action === 'toggleUI') {
+        console.log('Received toggleUI message');
+        toggleUI();
+    } else if (message.action === 'loadPosts') {
+        console.log('Received loadPosts message for:', message.username);
+        handleLoadPosts(message.username).then(sendResponse);
+        return true; // Keep message channel open for async response
+    } else if (message.action === 'loadComments') {
+        console.log('Received loadComments message for:', message.username);
+        handleLoadComments(message.username).then(sendResponse);
+        return true; // Keep message channel open for async response
     }
 });
+
+// Handle load posts request from popup
+async function handleLoadPosts(username) {
+    try {
+        const result = await extractPosts(username);
+        
+        if (result.needsNavigation) {
+            // Navigate to posts page
+            window.location.href = result.needsNavigation;
+            return { success: false, message: 'Navigating to posts page...' };
+        }
+        
+        // Send posts to background script
+        await browser.runtime.sendMessage({
+            action: 'storePosts',
+            username: username,
+            posts: result.posts
+        });
+        
+        return { success: true, count: result.posts.length };
+    } catch (error) {
+        console.error('Error loading posts:', error);
+        return { success: false, message: 'Error loading posts' };
+    }
+}
+
+// Handle load comments request from popup
+async function handleLoadComments(username) {
+    try {
+        const result = await extractComments(username);
+        
+        if (result.needsNavigation) {
+            // Navigate to comments page
+            window.location.href = result.needsNavigation;
+            return { success: false, message: 'Navigating to comments page...' };
+        }
+        
+        // Send comments to background script
+        await browser.runtime.sendMessage({
+            action: 'storeComments',
+            username: username,
+            comments: result.comments
+        });
+        
+        return { success: true, count: result.comments.length };
+    } catch (error) {
+        console.error('Error loading comments:', error);
+        return { success: false, message: 'Error loading comments' };
+    }
+}
 
 // Add a visible test indicator
 function addTestIndicator() {

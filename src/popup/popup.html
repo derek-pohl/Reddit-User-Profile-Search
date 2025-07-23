@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 350px;
+            min-height: 400px;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 14px;
+            background: #ffffff;
+        }
+
+        .header {
+            background: #ff4500;
+            color: white;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .content {
+            padding: 16px;
+        }
+
+        .status {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            font-weight: 600;
+        }
+
+        .status-value {
+            color: #666;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary {
+            background: #0079d3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0066cc;
+        }
+
+        .btn-success {
+            background: #46d160;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3db854;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .chat-container {
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #fafafa;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .chat-message {
+            margin-bottom: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .chat-message.user {
+            background: #e3f2fd;
+            margin-left: 20px;
+        }
+
+        .chat-message.ai {
+            background: #f1f8e9;
+            margin-right: 20px;
+        }
+
+        .chat-message.system {
+            background: #fff3e0;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .chat-input-container {
+            display: flex;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        #chatInput {
+            flex: 1;
+            border: none;
+            padding: 8px 12px;
+            resize: none;
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+        }
+
+        #sendBtn {
+            background: #ff4500;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        #sendBtn:hover:not(:disabled) {
+            background: #e03d00;
+        }
+
+        #sendBtn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+
+        .not-reddit {
+            text-align: center;
+            color: #666;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>🔍 Profile Search</h1>
+    </div>
+
+    <div class="content">
+        <div id="notRedditMessage" class="not-reddit" style="display: none;">
+            <p>Please navigate to a Reddit user profile page to use this extension.</p>
+            <p>Example: reddit.com/user/username</p>
+        </div>
+
+        <div id="mainContent">
+            <div class="status">
+                <div class="status-item">
+                    <span class="status-label">User:</span>
+                    <span class="status-value" id="currentUser">Not detected</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Posts:</span>
+                    <span class="status-value" id="postsStatus">Not loaded</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Comments:</span>
+                    <span class="status-value" id="commentsStatus">Not loaded</span>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" id="loadPostsBtn" disabled>Load Posts</button>
+                <button class="btn btn-success" id="loadCommentsBtn" disabled>Load Comments</button>
+            </div>
+
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="chat-message system">
+                        Navigate to a Reddit user profile and load their data to start analyzing.
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <textarea id="chatInput" placeholder="Ask about this user..." rows="1"></textarea>
+                    <button id="sendBtn" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+
+</html>

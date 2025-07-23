@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <link rel="stylesheet" href="options.css">
     <script src="dark_mode_init.js"></script>
 </head>
+
 <body>
     <div class="header">
         <div class="header-content">
@@ -27,7 +29,7 @@
         </div>
     </div>
 
-    
+
 
     <div class="content-wrapper">
         <!-- Settings Tab -->
@@ -39,7 +41,8 @@
                     <div class="setting-row">
                         <div class="setting-info">
                             <label>Enable Profile Analyzer</label>
-                            <div class="setting-description">Turn the extension on or off. When disabled, profile analysis will not be available.</div>
+                            <div class="setting-description">Turn the extension on or off. When disabled, profile
+                                analysis will not be available.</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch enabled" data-toggle="extension-enabled"></div>
@@ -50,96 +53,22 @@
                 <!-- API Configuration -->
                 <section class="settings-section">
                     <h2>Gemini API Configuration</h2>
-                    
+
                     <div class="setting-row">
                         <div class="setting-info">
                             <label for="apiKey">Gemini API Key</label>
-                            <div class="setting-description">Your Google Gemini API key. Get one at <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a></div>
+                            <div class="setting-description">Your Google Gemini API key. Get one at <a
+                                    href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>
+                            </div>
                         </div>
                         <div class="setting-control">
                             <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
                         </div>
                     </div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label for="baseUrl">Base URL</label>
-                            <div class="setting-description">
-                                API endpoint URL<br>
-                                <small><strong>Gemini:</strong> https://generativelanguage.googleapis.com/v1beta<br>
-                                <strong>OpenAI-compatible:</strong> https://generativelanguage.googleapis.com/v1beta/openai</small>
-                            </div>
-                        </div>
-                        <div class="setting-control">
-                            <input type="text" id="baseUrl" placeholder="https://generativelanguage.googleapis.com/v1beta" value="https://generativelanguage.googleapis.com/v1beta">
-                        </div>
-                    </div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label for="model">Model</label>
-                            <div class="setting-description">Gemini model to use (e.g., gemini-1.5-flash, gemini-1.5-pro)</div>
-                        </div>
-                        <div class="setting-control">
-                            <input type="text" id="model" placeholder="gemini-1.5-flash" value="gemini-1.5-flash">
-                        </div>
-                    </div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label for="rateLimit">Rate Limit</label>
-                            <div class="setting-description">Maximum API requests per minute (1-600)</div>
-                        </div>
-                        <div class="setting-control">
-                            <input type="number" id="rateLimit" placeholder="60" min="1" max="600" step="1">
-                        </div>
-                    </div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label>Force JSON Output</label>
-                            <div class="setting-description">Enable for services that support structured JSON output</div>
-                        </div>
-                        <div class="setting-control">
-                            <div class="toggle-switch enabled" data-toggle="json-output"></div>
-                        </div>
-                    </div>
-                </section>
 
-                <!-- Analysis Settings -->
-                <section class="settings-section">
-                    <h2>Analysis Settings</h2>
-                    <div class="section-description">Configure how profile analysis works.</div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label for="maxPosts">Maximum Posts to Analyze</label>
-                            <div class="setting-description">Limit the number of posts to include in analysis (1-100)</div>
-                        </div>
-                        <div class="setting-control">
-                            <input type="number" id="maxPosts" value="50" min="1" max="100" step="1">
-                        </div>
-                    </div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label for="maxComments">Maximum Comments to Analyze</label>
-                            <div class="setting-description">Limit the number of comments to include in analysis (1-100)</div>
-                        </div>
-                        <div class="setting-control">
-                            <input type="number" id="maxComments" value="50" min="1" max="100" step="1">
-                        </div>
-                    </div>
-                    
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label>Auto-load Data</label>
-                            <div class="setting-description">Automatically load posts and comments when visiting a profile</div>
-                        </div>
-                        <div class="setting-control">
-                            <div class="toggle-switch" data-toggle="auto-load"></div>
-                        </div>
-                    </div>
+
+
+
                 </section>
 
                 <!-- Appearance -->
@@ -157,7 +86,8 @@
                     <div class="setting-row">
                         <div class="setting-info">
                             <label>Automatic Dark Mode</label>
-                            <div class="setting-description">Automatically switch between light and dark themes based on your system settings.</div>
+                            <div class="setting-description">Automatically switch between light and dark themes based on
+                                your system settings.</div>
                         </div>
                         <div class="setting-control">
                             <div class="toggle-switch" data-toggle="automatic-dark-mode"></div>
@@ -182,7 +112,8 @@
                     <div class="setting-row">
                         <div class="setting-info">
                             <label>Import Settings</label>
-                            <div class="setting-description">Load settings from a file. This will overwrite your current settings.</div>
+                            <div class="setting-description">Load settings from a file. This will overwrite your current
+                                settings.</div>
                         </div>
                         <div class="setting-control">
                             <button id="importButton" class="btn-secondary">Import</button>
@@ -201,26 +132,28 @@
                 </div>
                 <div class="guide-content">
                     <h3>How to Use Reddit User Profile Search</h3>
-                    
+
                     <div class="guide-step">
                         <h4>1. Configure API Settings</h4>
-                        <p>Get a free Gemini API key from <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a> and enter it in the settings above.</p>
+                        <p>Get a free Gemini API key from <a href="https://aistudio.google.com/app/apikey"
+                                target="_blank">Google AI Studio</a> and enter it in the settings above.</p>
                     </div>
-                    
+
                     <div class="guide-step">
                         <h4>2. Visit a Reddit User Profile</h4>
                         <p>Navigate to any Reddit user's profile page (e.g., https://www.reddit.com/user/username/)</p>
                     </div>
-                    
+
                     <div class="guide-step">
                         <h4>3. Load Data</h4>
-                        <p>The analyzer will appear on the profile page. Click "Load Posts" or "Load Comments" to gather data for analysis.</p>
+                        <p>The analyzer will appear on the profile page. Click "Load Posts" or "Load Comments" to gather
+                            data for analysis.</p>
                         <ul>
                             <li>For posts: Visit the user's "submitted" tab first</li>
                             <li>For comments: Visit the user's "comments" tab first</li>
                         </ul>
                     </div>
-                    
+
                     <div class="guide-step">
                         <h4>4. Ask Questions</h4>
                         <p>Once data is loaded, you can ask questions about the user's profile:</p>
@@ -231,16 +164,18 @@
                             <li>"Are they generally positive or negative in their comments?"</li>
                         </ul>
                     </div>
-                    
+
                     <div class="guide-note">
-                        <strong>Note:</strong> This extension only analyzes publicly available Reddit data and respects user privacy. All analysis is done locally with your own API key.
+                        <strong>Note:</strong> This extension only analyzes publicly available Reddit data and respects
+                        user privacy. All analysis is done locally with your own API key.
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
+
     <script src="../lib/webextension-polyfill.js"></script>
     <script src="options.js"></script>
 </body>
+
 </html>
