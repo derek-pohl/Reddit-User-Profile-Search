@@ -40,32 +40,48 @@ async function extractPosts(username) {
 
     // Extract posts from current page using updated selectors
     const postElements = document.querySelectorAll('shreddit-post');
+    console.log(`Found ${postElements.length} post elements`);
 
     for (const postEl of postElements) {
         try {
-            // Updated selectors based on actual Reddit HTML structure
-            const titleEl = postEl.querySelector('a[slot="title"], #post-title-t3_\\w+');
-            const subredditEl = postEl.querySelector('[data-testid="subreddit-name"]');
-            const scoreEl = postEl.querySelector('[score]');
-            const timeEl = postEl.querySelector('faceplate-timeago time');
-            const bodyEl = postEl.querySelector('[slot="text-body"] .md, [id$="-post-rtjson-content"]');
+            // Get post data directly from shreddit-post element attributes (most reliable)
+            const postTitle = postEl.getAttribute('post-title') || '';
+            const subredditName = postEl.getAttribute('subreddit-prefixed-name') || '';
+            const postScore = postEl.getAttribute('score') || '0';
+            const createdTimestamp = postEl.getAttribute('created-timestamp') || '';
+            const postUrl = postEl.getAttribute('permalink') || '';
+            const postId = postEl.getAttribute('id') || '';
+            
+            // Try to get post body from text content
+            let postBody = '';
+            const bodyEl = postEl.querySelector('[slot="text-body"]');
+            if (bodyEl) {
+                // Look for the content div with post text
+                const contentDiv = bodyEl.querySelector('[id$="-post-rtjson-content"]') || 
+                                 bodyEl.querySelector('.md') || 
+                                 bodyEl.querySelector('div[about]');
+                if (contentDiv) {
+                    postBody = contentDiv.textContent?.trim() || '';
+                }
+            }
 
-            // Get post attributes directly from shreddit-post element
-            const postTitle = postEl.getAttribute('post-title') || titleEl?.textContent?.trim() || '';
-            const subredditName = postEl.getAttribute('subreddit-prefixed-name') || subredditEl?.textContent?.trim() || '';
-            const postScore = postEl.getAttribute('score') || extractScore(scoreEl?.textContent || '0');
-            const createdTimestamp = postEl.getAttribute('created-timestamp') || timeEl?.getAttribute('datetime') || '';
-            const postBody = bodyEl?.textContent?.trim() || '';
-            const postUrl = postEl.getAttribute('permalink') || titleEl?.href || '';
+            console.log('Extracted post:', {
+                title: postTitle,
+                subreddit: subredditName,
+                score: postScore,
+                body: postBody ? postBody.substring(0, 100) + '...' : 'No body',
+                url: postUrl
+            });
 
-            if (postTitle) {
+            if (postTitle && postTitle.length > 0) {
                 posts.push({
                     title: postTitle,
-                    subreddit: subredditName.replace('r/', ''),
-                    score: typeof postScore === 'string' ? parseInt(postScore, 10) : postScore,
+                    subreddit: subredditName.replace(/^r\//, ''), // Remove r/ prefix if present
+                    score: parseInt(postScore, 10) || 0,
                     time: createdTimestamp,
                     body: postBody,
-                    url: postUrl.startsWith('/') ? `https://www.reddit.com${postUrl}` : postUrl
+                    url: postUrl.startsWith('/') ? `https://www.reddit.com${postUrl}` : postUrl,
+                    id: postId
                 });
             }
         } catch (error) {
