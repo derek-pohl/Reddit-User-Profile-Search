@@ -78,9 +78,48 @@ function showNotRedditMessage() {
 function addChatMessage(type, content) {
     const messageEl = document.createElement('div');
     messageEl.className = `chat-message ${type}`;
-    messageEl.textContent = content;
+    
+    // For AI responses, parse markdown formatting
+    if (type === 'ai') {
+        messageEl.innerHTML = parseMarkdown(content);
+    } else {
+        messageEl.textContent = content;
+    }
+    
     chatMessages.appendChild(messageEl);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+// Simple markdown parser for basic formatting
+function parseMarkdown(text) {
+    // Escape HTML to prevent XSS
+    let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    
+    // Parse markdown formatting
+    html = html
+        // Bold text: **text** or __text__
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/__(.*?)__/g, '<strong>$1</strong>')
+        
+        // Italic text: *text* or _text_
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/_(.*?)_/g, '<em>$1</em>')
+        
+        // Code blocks: ```code```
+        .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
+        
+        // Inline code: `code`
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        
+        // Line breaks
+        .replace(/\n/g, '<br>');
+    
+    return html;
 }
 
 // Send message to content script

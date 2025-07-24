@@ -132,14 +132,14 @@ async function callGeminiAPI(username, userData, question, apiKey) {
         });
     }
     
-    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments when relevant.`;
+    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments when relevant.\n\nIMPORTANT: Format your response using markdown (use **bold** for emphasis, *italics* for highlights, \`code\` for usernames/subreddits, and bullet points for lists). Keep your response concise and under 200 words.`;
     
     console.log('Context prepared, length:', context.length);
     console.log('Making API call to Gemini...');
     
     try {
         // Use the new Google GenAI library format with correct model and endpoint
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
