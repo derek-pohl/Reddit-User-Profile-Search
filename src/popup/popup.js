@@ -248,10 +248,16 @@ async function sendChatMessage() {
     }
 }
 
+// Open options page
+function openOptionsPage() {
+    chrome.runtime.openOptionsPage();
+}
+
 // Event listeners
 loadPostsBtn.addEventListener('click', loadPosts);
 loadCommentsBtn.addEventListener('click', loadComments);
 sendBtn.addEventListener('click', sendChatMessage);
+document.getElementById('optionsBtn').addEventListener('click', openOptionsPage);
 
 chatInput.addEventListener('input', (e) => {
     sendBtn.disabled = !e.target.value.trim();

@@ -19,6 +19,7 @@
             color: white;
             padding: 16px;
             text-align: center;
+            position: relative;
         }
 
         .header h1 {
@@ -191,12 +192,36 @@
             color: #666;
             padding: 20px;
         }
+
+        .header-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+        }
+
+        .btn-options {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-options:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
 
 <body>
     <div class="header">
         <h1>🔍 Profile Search</h1>
+        <div class="header-controls">
+            <button class="btn-options" id="optionsBtn" title="Settings">⚙️</button>
+        </div>
     </div>
 
     <div class="content">

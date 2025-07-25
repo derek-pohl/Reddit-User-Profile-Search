@@ -51,15 +51,15 @@ async function extractPosts(username) {
             const createdTimestamp = postEl.getAttribute('created-timestamp') || '';
             const postUrl = postEl.getAttribute('permalink') || '';
             const postId = postEl.getAttribute('id') || '';
-            
+
             // Try to get post body from text content
             let postBody = '';
             const bodyEl = postEl.querySelector('[slot="text-body"]');
             if (bodyEl) {
                 // Look for the content div with post text
-                const contentDiv = bodyEl.querySelector('[id$="-post-rtjson-content"]') || 
-                                 bodyEl.querySelector('.md') || 
-                                 bodyEl.querySelector('div[about]');
+                const contentDiv = bodyEl.querySelector('[id$="-post-rtjson-content"]') ||
+                    bodyEl.querySelector('.md') ||
+                    bodyEl.querySelector('div[about]');
                 if (contentDiv) {
                     postBody = contentDiv.textContent?.trim() || '';
                 }
@@ -397,6 +397,20 @@ async function loadUserPosts(username) {
     loadBtn.textContent = 'Loading...';
     countEl.textContent = 'Loading...';
 
+    // Check if we need to navigate to the posts page
+    const currentPath = window.location.pathname;
+    const expectedPath = `/user/${username}/submitted/`;
+    const altExpectedPath = `/u/${username}/submitted/`;
+
+    if (!currentPath.includes('/submitted/')) {
+        countEl.textContent = 'Navigating...';
+        addChatMessage('system', `Navigating to posts page...`);
+        // Navigate to posts page
+        const targetUrl = currentPath.startsWith('/u/') ? altExpectedPath : expectedPath;
+        window.location.replace(`https://www.reddit.com${targetUrl}`);
+        return;
+    }
+
     try {
         const result = await extractPosts(username);
 
@@ -438,6 +452,20 @@ async function loadUserComments(username) {
     loadBtn.textContent = 'Loading...';
     countEl.textContent = 'Loading...';
 
+    // Check if we need to navigate to the comments page
+    const currentPath = window.location.pathname;
+    const expectedPath = `/user/${username}/comments/`;
+    const altExpectedPath = `/u/${username}/comments/`;
+
+    if (!currentPath.includes('/comments/')) {
+        countEl.textContent = 'Navigating...';
+        addChatMessage('system', `Navigating to comments page...`);
+        // Navigate to comments page
+        const targetUrl = currentPath.startsWith('/u/') ? altExpectedPath : expectedPath;
+        window.location.replace(`https://www.reddit.com${targetUrl}`);
+        return;
+    }
+
     try {
         const result = await extractComments(username);
 
@@ -477,7 +505,7 @@ function addChatMessage(type, content) {
 
     const messageEl = document.createElement('div');
     messageEl.className = `chat-message ${type}`;
-    
+
     // For AI responses, parse markdown formatting
     if (type === 'ai') {
         messageEl.innerHTML = parseMarkdown(content);
@@ -498,26 +526,26 @@ function parseMarkdown(text) {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;');
-    
+
     // Parse markdown formatting
     html = html
         // Bold text: **text** or __text__
         .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
         .replace(/__(.*?)__/g, '<strong>$1</strong>')
-        
+
         // Italic text: *text* or _text_
         .replace(/\*(.*?)\*/g, '<em>$1</em>')
         .replace(/_(.*?)_/g, '<em>$1</em>')
-        
+
         // Code blocks: ```code```
         .replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>')
-        
+
         // Inline code: `code`
         .replace(/`([^`]+)`/g, '<code>$1</code>')
-        
+
         // Line breaks
         .replace(/\n/g, '<br>');
-    
+
     return html;
 }
 
@@ -602,12 +630,12 @@ async function initializeExtension() {
 // Function to toggle UI visibility
 function toggleUI() {
     console.log('Toggle UI called');
-    
+
     if (!currentUsername) {
         console.log('No username detected, cannot show UI');
         return;
     }
-    
+
     if (analysisUI) {
         console.log('UI exists, removing it');
         analysisUI.remove();
@@ -672,22 +700,34 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Handle load posts request from popup
 async function handleLoadPosts(username) {
+    // Check if we need to navigate to the posts page first
+    const currentPath = window.location.pathname;
+    const expectedPath = `/user/${username}/submitted/`;
+    const altExpectedPath = `/u/${username}/submitted/`;
+    
+    if (!currentPath.includes('/submitted/')) {
+        // Navigate to posts page
+        const targetUrl = currentPath.startsWith('/u/') ? altExpectedPath : expectedPath;
+        window.location.replace(`https://www.reddit.com${targetUrl}`);
+        return { success: false, message: 'Navigating to posts page...' };
+    }
+
     try {
         const result = await extractPosts(username);
-        
+
         if (result.needsNavigation) {
             // Navigate to posts page
-            window.location.href = result.needsNavigation;
+            window.location.replace(result.needsNavigation);
             return { success: false, message: 'Navigating to posts page...' };
         }
-        
+
         // Send posts to background script
         await browser.runtime.sendMessage({
             action: 'storePosts',
             username: username,
             posts: result.posts
         });
-        
+
         return { success: true, count: result.posts.length };
     } catch (error) {
         console.error('Error loading posts:', error);
@@ -697,22 +737,34 @@ async function handleLoadPosts(username) {
 
 // Handle load comments request from popup
 async function handleLoadComments(username) {
+    // Check if we need to navigate to the comments page first
+    const currentPath = window.location.pathname;
+    const expectedPath = `/user/${username}/comments/`;
+    const altExpectedPath = `/u/${username}/comments/`;
+    
+    if (!currentPath.includes('/comments/')) {
+        // Navigate to comments page
+        const targetUrl = currentPath.startsWith('/u/') ? altExpectedPath : expectedPath;
+        window.location.replace(`https://www.reddit.com${targetUrl}`);
+        return { success: false, message: 'Navigating to comments page...' };
+    }
+
     try {
         const result = await extractComments(username);
-        
+
         if (result.needsNavigation) {
             // Navigate to comments page
-            window.location.href = result.needsNavigation;
+            window.location.replace(result.needsNavigation);
             return { success: false, message: 'Navigating to comments page...' };
         }
-        
+
         // Send comments to background script
         await browser.runtime.sendMessage({
             action: 'storeComments',
             username: username,
             comments: result.comments
         });
-        
+
         return { success: true, count: result.comments.length };
     } catch (error) {
         console.error('Error loading comments:', error);
@@ -720,47 +772,20 @@ async function handleLoadComments(username) {
     }
 }
 
-// Add a visible test indicator
-function addTestIndicator() {
-    const indicator = document.createElement('div');
-    indicator.id = 'reddit-extension-test';
-    indicator.style.cssText = `
-        position: fixed;
-        top: 10px;
-        left: 10px;
-        background: red;
-        color: white;
-        padding: 5px 10px;
-        z-index: 99999;
-        font-size: 12px;
-        border-radius: 3px;
-    `;
-    indicator.textContent = 'Reddit Extension Loaded';
-    document.body.appendChild(indicator);
 
-    // Remove after 3 seconds
-    setTimeout(() => {
-        if (indicator.parentNode) {
-            indicator.parentNode.removeChild(indicator);
-        }
-    }, 3000);
-}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded fired');
-    addTestIndicator();
     initializeExtension();
 });
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         console.log('DOMContentLoaded fired (loading state)');
-        addTestIndicator();
         initializeExtension();
     });
 } else {
     console.log('Document already loaded, initializing immediately');
-    addTestIndicator();
     initializeExtension();
 }
