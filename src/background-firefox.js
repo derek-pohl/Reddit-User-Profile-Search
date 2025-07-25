@@ -132,7 +132,7 @@ async function callGeminiAPI(username, userData, question, apiKey) {
         });
     }
     
-    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments when relevant.\n\nIMPORTANT: Format your response using markdown (use **bold** for emphasis, *italics* for highlights, \`code\` for usernames/subreddits, and bullet points for lists). Keep your response concise and under 200 words.`;
+    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments if needed.\n\nIMPORTANT: Format your response using markdown (use **bold** for emphasis, *italics* for highlights, \`code\` for usernames/subreddits, and bullet points for lists). Keep your response concise, unless if you feel as if it should be longer.`;
     
     console.log('Context prepared, length:', context.length);
     console.log('Making API call to Gemini...');
@@ -151,8 +151,7 @@ async function callGeminiAPI(username, userData, question, apiKey) {
                     }]
                 }],
                 generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 1000
+                    temperature: 0.7
                 }
             })
         });
