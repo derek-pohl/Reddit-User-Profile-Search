@@ -122,19 +122,24 @@
         }
 
         .chat-message.user {
-            background: #e3f2fd;
+            background: #fff4e6;
+            border-left: 3px solid #ff4500;
             margin-left: 20px;
         }
 
         .chat-message.ai {
-            background: #f1f8e9;
+            background: #ffffff;
+            border-left: 3px solid #ff8c42;
             margin-right: 20px;
+            box-shadow: 0 1px 3px rgba(255, 69, 0, 0.1);
         }
 
         .chat-message.system {
-            background: #fff3e0;
+            background: #fef7f0;
+            border: 1px solid #ffb366;
             font-style: italic;
             text-align: center;
+            color: #cc5500;
         }
 
         .chat-input-container {
@@ -223,9 +228,6 @@
 
             <div class="chat-container">
                 <div class="chat-messages" id="chatMessages">
-                    <div class="chat-message system">
-                        Navigate to a Reddit user profile and load their data to start analyzing.
-                    </div>
                 </div>
                 <div class="chat-input-container">
                     <textarea id="chatInput" placeholder="Ask about this user..." rows="1"></textarea>
