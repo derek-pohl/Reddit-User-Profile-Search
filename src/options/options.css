@@ -987,3 +987,225 @@ html.dark-mode .slider-labels {
 .dark-mode .guide-content h3 {
     color: #e2e8f0;
 }
+
+/* Color Scheme Variations */
+/* Blue Theme */
+.color-blue .tab-button.active {
+    color: #1976d2;
+    border-bottom-color: #1976d2;
+}
+
+.color-blue .btn-save,
+.color-blue .btn-primary {
+    background: #1976d2;
+}
+
+.color-blue .btn-save:hover,
+.color-blue .btn-primary:hover {
+    background: #1565c0;
+}
+
+.color-blue .toggle-switch.enabled {
+    background: #1976d2;
+}
+
+.color-blue .setting-control input:focus,
+.color-blue .setting-control textarea:focus,
+.color-blue select:focus {
+    border-color: #1976d2;
+    box-shadow: 0 0 0 1px #1976d2;
+}
+
+.color-blue .setting-control input[type="range"]::-webkit-slider-thumb {
+    background: #1976d2;
+}
+
+.color-blue .setting-control input[type="range"]::-moz-range-thumb {
+    background: #1976d2;
+}
+
+.color-blue .guide-step {
+    border-left-color: #1976d2;
+}
+
+.color-blue .guide-step h4 {
+    color: #1976d2;
+}
+
+/* Green Theme */
+.color-green .tab-button.active {
+    color: #388e3c;
+    border-bottom-color: #388e3c;
+}
+
+.color-green .btn-save,
+.color-green .btn-primary {
+    background: #388e3c;
+}
+
+.color-green .btn-save:hover,
+.color-green .btn-primary:hover {
+    background: #2e7d32;
+}
+
+.color-green .toggle-switch.enabled {
+    background: #388e3c;
+}
+
+.color-green .setting-control input:focus,
+.color-green .setting-control textarea:focus,
+.color-green select:focus {
+    border-color: #388e3c;
+    box-shadow: 0 0 0 1px #388e3c;
+}
+
+.color-green .setting-control input[type="range"]::-webkit-slider-thumb {
+    background: #388e3c;
+}
+
+.color-green .setting-control input[type="range"]::-moz-range-thumb {
+    background: #388e3c;
+}
+
+.color-green .guide-step {
+    border-left-color: #388e3c;
+}
+
+.color-green .guide-step h4 {
+    color: #388e3c;
+}
+
+/* Purple Theme */
+.color-purple .tab-button.active {
+    color: #7b1fa2;
+    border-bottom-color: #7b1fa2;
+}
+
+.color-purple .btn-save,
+.color-purple .btn-primary {
+    background: #7b1fa2;
+}
+
+.color-purple .btn-save:hover,
+.color-purple .btn-primary:hover {
+    background: #6a1b9a;
+}
+
+.color-purple .toggle-switch.enabled {
+    background: #7b1fa2;
+}
+
+.color-purple .setting-control input:focus,
+.color-purple .setting-control textarea:focus,
+.color-purple select:focus {
+    border-color: #7b1fa2;
+    box-shadow: 0 0 0 1px #7b1fa2;
+}
+
+.color-purple .setting-control input[type="range"]::-webkit-slider-thumb {
+    background: #7b1fa2;
+}
+
+.color-purple .setting-control input[type="range"]::-moz-range-thumb {
+    background: #7b1fa2;
+}
+
+.color-purple .guide-step {
+    border-left-color: #7b1fa2;
+}
+
+.color-purple .guide-step h4 {
+    color: #7b1fa2;
+}
+
+/* Gray Theme */
+.color-gray .tab-button.active {
+    color: #424242;
+    border-bottom-color: #424242;
+}
+
+.color-gray .btn-save,
+.color-gray .btn-primary {
+    background: #424242;
+}
+
+.color-gray .btn-save:hover,
+.color-gray .btn-primary:hover {
+    background: #303030;
+}
+
+.color-gray .toggle-switch.enabled {
+    background: #424242;
+}
+
+.color-gray .setting-control input:focus,
+.color-gray .setting-control textarea:focus,
+.color-gray select:focus {
+    border-color: #424242;
+    box-shadow: 0 0 0 1px #424242;
+}
+
+.color-gray .setting-control input[type="range"]::-webkit-slider-thumb {
+    background: #424242;
+}
+
+.color-gray .setting-control input[type="range"]::-moz-range-thumb {
+    background: #424242;
+}
+
+.color-gray .guide-step {
+    border-left-color: #424242;
+}
+
+.color-gray .guide-step h4 {
+    color: #424242;
+}
+
+/* Dark mode color scheme adjustments */
+.dark-mode.color-blue .tab-button.active,
+.dark-mode.color-blue .guide-step h4 {
+    color: #42a5f5;
+}
+
+.dark-mode.color-blue .toggle-switch.enabled,
+.dark-mode.color-blue .btn-primary,
+.dark-mode.color-blue .setting-control input[type="range"]::-webkit-slider-thumb,
+.dark-mode.color-blue .setting-control input[type="range"]::-moz-range-thumb {
+    background: #42a5f5;
+}
+
+.dark-mode.color-green .tab-button.active,
+.dark-mode.color-green .guide-step h4 {
+    color: #66bb6a;
+}
+
+.dark-mode.color-green .toggle-switch.enabled,
+.dark-mode.color-green .btn-primary,
+.dark-mode.color-green .setting-control input[type="range"]::-webkit-slider-thumb,
+.dark-mode.color-green .setting-control input[type="range"]::-moz-range-thumb {
+    background: #66bb6a;
+}
+
+.dark-mode.color-purple .tab-button.active,
+.dark-mode.color-purple .guide-step h4 {
+    color: #ab47bc;
+}
+
+.dark-mode.color-purple .toggle-switch.enabled,
+.dark-mode.color-purple .btn-primary,
+.dark-mode.color-purple .setting-control input[type="range"]::-webkit-slider-thumb,
+.dark-mode.color-purple .setting-control input[type="range"]::-moz-range-thumb {
+    background: #ab47bc;
+}
+
+.dark-mode.color-gray .tab-button.active,
+.dark-mode.color-gray .guide-step h4 {
+    color: #bdbdbd;
+}
+
+.dark-mode.color-gray .toggle-switch.enabled,
+.dark-mode.color-gray .btn-primary,
+.dark-mode.color-gray .setting-control input[type="range"]::-webkit-slider-thumb,
+.dark-mode.color-gray .setting-control input[type="range"]::-moz-range-thumb {
+    background: #bdbdbd;
+}

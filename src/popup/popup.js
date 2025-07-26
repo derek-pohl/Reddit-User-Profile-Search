@@ -15,9 +15,30 @@ const sendBtn = document.getElementById('sendBtn');
 const notRedditMessage = document.getElementById('notRedditMessage');
 const mainContent = document.getElementById('mainContent');
 
+// Apply color scheme
+async function applyColorScheme() {
+    try {
+        const result = await chrome.storage.sync.get(['colorScheme']);
+        const colorScheme = result.colorScheme || 'orange';
+        
+        // Remove all existing color scheme classes
+        document.documentElement.classList.remove('color-orange', 'color-blue', 'color-green', 'color-purple', 'color-gray');
+        
+        // Apply the selected color scheme
+        if (colorScheme && colorScheme !== 'orange') {
+            document.documentElement.classList.add(`color-${colorScheme}`);
+        }
+    } catch (error) {
+        console.error('Error applying color scheme:', error);
+    }
+}
+
 // Initialize popup
 async function initializePopup() {
     try {
+        // Apply color scheme first
+        await applyColorScheme();
+        
         // Get current active tab
         const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
         console.log('Tabs query result:', tabs);

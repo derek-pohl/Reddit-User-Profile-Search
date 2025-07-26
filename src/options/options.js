@@ -1,6 +1,7 @@
 // Reddit User Profile Search - Options Script
 
 const apiKeyInput = document.getElementById('apiKey');
+const colorSchemeSelect = document.getElementById('colorScheme');
 
 // Tab and content filter elements
 const tabButtons = document.querySelectorAll('.tab-button');
@@ -44,18 +45,25 @@ if (apiKeyInput) {
     });
 }
 
+if (colorSchemeSelect) {
+    colorSchemeSelect.addEventListener('change', () => {
+        applyColorScheme(colorSchemeSelect.value);
+        saveOptions();
+    });
+}
+
 // Save options
 async function saveOptions() {
     const apiKey = apiKeyInput?.value || '';
-    
-    const extensionEnabled = document.querySelector('[data-toggle="extension-enabled"]')?.classList.contains('enabled') || true;
+    const colorScheme = colorSchemeSelect?.value || 'orange';
+
     const autoLoad = document.querySelector('[data-toggle="auto-load"]')?.classList.contains('enabled') || false;
     const darkMode = document.querySelector('[data-toggle="dark-mode"]')?.classList.contains('enabled') || false;
     const automaticDarkMode = document.querySelector('[data-toggle="automatic-dark-mode"]')?.classList.contains('enabled') || false;
     
     chrome.storage.sync.set({ 
         apiKey,
-        extensionEnabled,
+        colorScheme,
         autoLoad,
         darkMode,
         automaticDarkMode
@@ -66,7 +74,7 @@ async function saveOptions() {
             tabs.forEach(tab => {
                 chrome.tabs.sendMessage(tab.id, {
                     action: 'settingsUpdated',
-                    settings: { extensionEnabled, autoLoad }
+                    settings: { autoLoad }
                 }).catch(() => {
                     // Ignore errors for tabs without content script
                 });
@@ -82,7 +90,7 @@ async function restoreOptions() {
     try {
         const result = await chrome.storage.sync.get([
             'apiKey',
-            'extensionEnabled', 
+            'colorScheme',
             'autoLoad',
             'darkMode',
             'automaticDarkMode'
@@ -92,7 +100,12 @@ async function restoreOptions() {
             apiKeyInput.value = result.apiKey;
         }
         
-        const extensionEnabled = result.extensionEnabled !== false; // Default to true
+        const colorScheme = result.colorScheme || 'orange';
+        if (colorSchemeSelect) {
+            colorSchemeSelect.value = colorScheme;
+            applyColorScheme(colorScheme);
+        }
+        
         const autoLoad = result.autoLoad === true; // Only true if explicitly set
         const darkMode = result.darkMode === true; // Only true if explicitly set
         const automaticDarkMode = result.automaticDarkMode === true; // Only true if explicitly set
@@ -101,10 +114,6 @@ async function restoreOptions() {
         document.querySelectorAll('.toggle-switch').forEach(toggle => {
             toggle.classList.remove('enabled');
         });
-        
-        if (extensionEnabled) {
-            document.querySelector('[data-toggle="extension-enabled"]')?.classList.add('enabled');
-        }
         
         if (autoLoad) {
             document.querySelector('[data-toggle="auto-load"]')?.classList.add('enabled');
@@ -122,6 +131,30 @@ async function restoreOptions() {
     } catch (error) {
         console.error('Error restoring options:', error);
     }
+}
+
+function applyColorScheme(scheme) {
+    // Remove all existing color scheme classes
+    document.documentElement.classList.remove('color-orange', 'color-blue', 'color-green', 'color-purple', 'color-gray');
+    
+    // Apply the selected color scheme
+    if (scheme && scheme !== 'orange') {
+        document.documentElement.classList.add(`color-${scheme}`);
+    }
+    
+    // Notify content scripts about color scheme change
+    chrome.tabs.query({url: "*://*.reddit.com/*"}).then(tabs => {
+        tabs.forEach(tab => {
+            chrome.tabs.sendMessage(tab.id, {
+                action: 'colorSchemeUpdated',
+                colorScheme: scheme
+            }).catch(() => {
+                // Ignore errors for tabs without content script
+            });
+        });
+    }).catch(() => {
+        // Ignore errors if tabs API is not available
+    });
 }
 
 function applyTheme() {

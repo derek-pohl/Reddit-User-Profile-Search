@@ -181,28 +181,6 @@ async function callGeminiAPI(username, userData, question, apiKey) {
     }
 }
 
-// Handle keyboard commands
-browser.commands.onCommand.addListener(async (command) => {
-    switch (command) {
-        case 'toggle-extension':
-            const { extensionEnabled } = await browser.storage.sync.get(['extensionEnabled']);
-            const newState = !extensionEnabled;
-            await browser.storage.sync.set({ extensionEnabled: newState });
-            
-            // Notify all tabs
-            const tabs = await browser.tabs.query({ url: "*://*.reddit.com/*" });
-            for (const tab of tabs) {
-                try {
-                    await browser.tabs.sendMessage(tab.id, {
-                        action: 'toggleExtension',
-                        enabled: newState
-                    });
-                } catch (error) {
-                    console.log('Could not send message to tab:', tab.id);
-                }
-            }
-            break;
-    }
-});
+
 
 console.log('Reddit User Profile Search background script loaded (Firefox)');

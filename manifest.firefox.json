@@ -32,6 +32,12 @@
       "js": ["lib/webextension-polyfill.js", "content.js"]
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["lib/color-schemes.css"],
+      "matches": ["*://*.reddit.com/*"]
+    }
+  ],
 
   "browser_specific_settings": {
     "gecko": {

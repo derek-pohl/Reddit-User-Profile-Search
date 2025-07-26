@@ -1,7 +1,7 @@
 // Reddit User Profile Search - Content Script
 // webextension-polyfill.js is loaded before this script in manifest.json
 
-let isExtensionEnabled = true;
+
 let currentUsername = null;
 let analysisUI = null;
 
@@ -584,14 +584,34 @@ async function sendChatMessage() {
     }
 }
 
-// Function to check if extension is enabled
-async function checkExtensionStatus() {
+// Apply color scheme to content script elements
+function applyColorScheme(scheme) {
+    // Remove all existing color scheme classes
+    document.documentElement.classList.remove('color-orange', 'color-blue', 'color-green', 'color-purple', 'color-gray');
+    
+    // Apply the selected color scheme
+    if (scheme && scheme !== 'orange') {
+        document.documentElement.classList.add(`color-${scheme}`);
+    }
+    
+    // Inject color scheme CSS if not already present
+    if (!document.getElementById('color-scheme-css')) {
+        const link = document.createElement('link');
+        link.id = 'color-scheme-css';
+        link.rel = 'stylesheet';
+        link.href = browser.runtime.getURL('lib/color-schemes.css');
+        document.head.appendChild(link);
+    }
+}
+
+// Initialize color scheme from storage
+async function initializeColorScheme() {
     try {
-        const result = await browser.storage.sync.get(['extensionEnabled']);
-        isExtensionEnabled = result.extensionEnabled !== false; // Default to true
+        const result = await browser.storage.sync.get(['colorScheme']);
+        const colorScheme = result.colorScheme || 'orange';
+        applyColorScheme(colorScheme);
     } catch (error) {
-        console.error('Error checking extension status:', error);
-        isExtensionEnabled = true;
+        console.error('Error initializing color scheme:', error);
     }
 }
 
@@ -601,13 +621,7 @@ async function initializeExtension() {
     console.log('Current URL:', window.location.href);
     console.log('Current pathname:', window.location.pathname);
 
-    await checkExtensionStatus();
-    console.log('Extension enabled:', isExtensionEnabled);
 
-    if (!isExtensionEnabled) {
-        console.log('Extension is disabled, exiting');
-        return;
-    }
 
     const username = detectUserProfile();
     console.log('Detected username:', username);
@@ -675,15 +689,8 @@ window.addEventListener('popstate', handleUrlChange);
 
 // Listen for messages from background script and popup
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.action === 'toggleExtension') {
-        isExtensionEnabled = message.enabled;
-        if (!isExtensionEnabled && analysisUI) {
-            analysisUI.remove();
-            analysisUI = null;
-            currentUsername = null;
-        } else if (isExtensionEnabled) {
-            initializeExtension();
-        }
+    if (message.action === 'colorSchemeUpdated') {
+        applyColorScheme(message.colorScheme);
     } else if (message.action === 'toggleUI') {
         console.log('Received toggleUI message');
         toggleUI();
@@ -777,15 +784,18 @@ async function handleLoadComments(username) {
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     console.log('DOMContentLoaded fired');
+    initializeColorScheme();
     initializeExtension();
 });
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         console.log('DOMContentLoaded fired (loading state)');
+        initializeColorScheme();
         initializeExtension();
     });
 } else {
     console.log('Document already loaded, initializing immediately');
+    initializeColorScheme();
     initializeExtension();
 }

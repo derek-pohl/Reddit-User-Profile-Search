@@ -35,20 +35,7 @@
         <!-- Settings Tab -->
         <div class="tab-content active" id="settings-tab">
             <div class="settings-container">
-                <!-- Extension Status -->
-                <section class="settings-section">
-                    <h2>Extension Status</h2>
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label>Enable Profile Analyzer</label>
-                            <div class="setting-description">Turn the extension on or off. When disabled, profile
-                                analysis will not be available.</div>
-                        </div>
-                        <div class="setting-control">
-                            <div class="toggle-switch enabled" data-toggle="extension-enabled"></div>
-                        </div>
-                    </div>
-                </section>
+
 
                 <!-- API Configuration -->
                 <section class="settings-section">
@@ -76,6 +63,21 @@
                     <h2>Appearance</h2>
                     <div class="setting-row">
                         <div class="setting-info">
+                            <label for="colorScheme">Color Scheme</label>
+                            <div class="setting-description">Choose the color theme for the extension interface.</div>
+                        </div>
+                        <div class="setting-control">
+                            <select id="colorScheme">
+                                <option value="orange">Orange (Default)</option>
+                                <option value="blue">Professional Blue</option>
+                                <option value="green">Forest Green</option>
+                                <option value="purple">Deep Purple</option>
+                                <option value="gray">Minimal Gray</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
                             <label>Enable Dark Mode</label>
                             <div class="setting-description">Reduce eye strain in low-light environments.</div>
                         </div>
@@ -97,30 +99,7 @@
 
 
 
-                <!-- Data Management -->
-                <section class="settings-section">
-                    <h2>Data Management</h2>
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label>Export Settings</label>
-                            <div class="setting-description">Save your current settings to a file.</div>
-                        </div>
-                        <div class="setting-control">
-                            <button id="exportButton" class="btn-primary">Export</button>
-                        </div>
-                    </div>
-                    <div class="setting-row">
-                        <div class="setting-info">
-                            <label>Import Settings</label>
-                            <div class="setting-description">Load settings from a file. This will overwrite your current
-                                settings.</div>
-                        </div>
-                        <div class="setting-control">
-                            <button id="importButton" class="btn-secondary">Import</button>
-                            <input type="file" id="importFile" accept=".json" style="display: none;">
-                        </div>
-                    </div>
-                </section>
+
             </div>
         </div>
 
