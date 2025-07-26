@@ -1161,6 +1161,15 @@ html.dark-mode .slider-labels {
     color: #424242;
 }
 
+/* API Configuration specific styles */
+#gemini-api-row {
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+}
+
+#gemini-api-row.hidden {
+    display: none !important;
+}
+
 /* Dark mode color scheme adjustments */
 .dark-mode.color-blue .tab-button.active,
 .dark-mode.color-blue .guide-step h4 {

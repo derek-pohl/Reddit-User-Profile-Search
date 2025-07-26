@@ -39,9 +39,19 @@
 
                 <!-- API Configuration -->
                 <section class="settings-section">
-                    <h2>Gemini API Configuration</h2>
+                    <h2>API Configuration</h2>
 
                     <div class="setting-row">
+                        <div class="setting-info">
+                            <label>Use Hack Club API</label>
+                            <div class="setting-description">Use the free Hack Club API instead of Gemini. When enabled, no API key is required. Should only be used by Hack Club participants for testing.</div>
+                        </div>
+                        <div class="setting-control">
+                            <div class="toggle-switch enabled" data-toggle="use-hack-club-api"></div>
+                        </div>
+                    </div>
+
+                    <div class="setting-row" id="gemini-api-row">
                         <div class="setting-info">
                             <label for="apiKey">Gemini API Key</label>
                             <div class="setting-description">Your Google Gemini API key. Get one at <a
@@ -52,9 +62,6 @@
                             <input type="password" id="apiKey" placeholder="Enter your Gemini API key">
                         </div>
                     </div>
-
-
-
 
                 </section>
 
@@ -114,8 +121,12 @@
 
                     <div class="guide-step">
                         <h4>1. Configure API Settings</h4>
-                        <p>Get a free Gemini API key from <a href="https://aistudio.google.com/app/apikey"
-                                target="_blank">Google AI Studio</a> and enter it in the settings above.</p>
+                        <p>Choose your preferred AI service:</p>
+                        <ul>
+                            <li><strong>Hack Club API (Default):</strong> Free to use, no API key required</li>
+                            <li><strong>Gemini API:</strong> Get a free API key from <a href="https://aistudio.google.com/app/apikey"
+                                target="_blank">Google AI Studio</a> and enter it in the settings above</li>
+                        </ul>
                     </div>
 
                     <div class="guide-step">

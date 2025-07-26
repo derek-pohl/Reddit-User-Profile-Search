@@ -60,15 +60,19 @@ async function saveOptions() {
     const autoLoad = document.querySelector('[data-toggle="auto-load"]')?.classList.contains('enabled') || false;
     const darkMode = document.querySelector('[data-toggle="dark-mode"]')?.classList.contains('enabled') || false;
     const automaticDarkMode = document.querySelector('[data-toggle="automatic-dark-mode"]')?.classList.contains('enabled') || false;
+    const useHackClubApi = document.querySelector('[data-toggle="use-hack-club-api"]')?.classList.contains('enabled') || false;
     
     chrome.storage.sync.set({ 
         apiKey,
         colorScheme,
         autoLoad,
         darkMode,
-        automaticDarkMode
+        automaticDarkMode,
+        useHackClubApi
     }).then(() => {
         console.log('Settings saved successfully');
+        // Update UI visibility
+        updateApiKeyVisibility();
         // Notify content scripts about settings change
         chrome.tabs.query({url: "*://*.reddit.com/*"}).then(tabs => {
             tabs.forEach(tab => {
@@ -93,7 +97,8 @@ async function restoreOptions() {
             'colorScheme',
             'autoLoad',
             'darkMode',
-            'automaticDarkMode'
+            'automaticDarkMode',
+            'useHackClubApi'
         ]);
         
         if (result.apiKey && apiKeyInput) {
@@ -109,6 +114,7 @@ async function restoreOptions() {
         const autoLoad = result.autoLoad === true; // Only true if explicitly set
         const darkMode = result.darkMode === true; // Only true if explicitly set
         const automaticDarkMode = result.automaticDarkMode === true; // Only true if explicitly set
+        const useHackClubApi = result.useHackClubApi !== false; // Default to true (enabled by default)
         
         // Clear all toggles first, then set the enabled ones
         document.querySelectorAll('.toggle-switch').forEach(toggle => {
@@ -127,6 +133,11 @@ async function restoreOptions() {
             document.querySelector('[data-toggle="automatic-dark-mode"]')?.classList.add('enabled');
         }
 
+        if (useHackClubApi) {
+            document.querySelector('[data-toggle="use-hack-club-api"]')?.classList.add('enabled');
+        }
+
+        updateApiKeyVisibility();
         applyTheme();
     } catch (error) {
         console.error('Error restoring options:', error);
@@ -177,15 +188,27 @@ function applyTheme() {
     }
 }
 
+// Update API key row visibility based on Hack Club API setting
+function updateApiKeyVisibility() {
+    const useHackClubApi = document.querySelector('[data-toggle="use-hack-club-api"]')?.classList.contains('enabled') || false;
+    const geminiApiRow = document.getElementById('gemini-api-row');
+    
+    if (geminiApiRow) {
+        geminiApiRow.style.display = useHackClubApi ? 'none' : 'flex';
+    }
+}
+
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     restoreOptions();
 
     const darkModeToggle = document.querySelector('[data-toggle="dark-mode"]');
     const automaticDarkModeToggle = document.querySelector('[data-toggle="automatic-dark-mode"]');
+    const hackClubApiToggle = document.querySelector('[data-toggle="use-hack-club-api"]');
 
     darkModeToggle?.addEventListener('click', applyTheme);
     automaticDarkModeToggle?.addEventListener('click', applyTheme);
+    hackClubApiToggle?.addEventListener('click', updateApiKeyVisibility);
 
     // Listen for system theme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);

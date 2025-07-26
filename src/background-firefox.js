@@ -76,12 +76,18 @@ async function handleAnalyzeProfile(message) {
     console.log('Analyzing profile:', message);
     const { username, question } = message;
     
-    // Get API key
-    const { apiKey } = await browser.storage.sync.get(['apiKey']);
-    console.log('API key:', apiKey ? 'SET' : 'NOT SET');
+    // Get settings
+    const { apiKey, useHackClubApi } = await browser.storage.sync.get(['apiKey', 'useHackClubApi']);
+    const shouldUseHackClub = useHackClubApi !== false; // Default to true
     
-    if (!apiKey) {
-        return { error: 'API key not configured. Please set it in the extension options.' };
+    console.log('API settings:', { 
+        useHackClubApi: shouldUseHackClub, 
+        hasGeminiKey: apiKey ? 'SET' : 'NOT SET' 
+    });
+
+    // Check API requirements
+    if (!shouldUseHackClub && !apiKey) {
+        return { error: 'Gemini API key not configured. Please set it in the extension options or enable Hack Club API.' };
     }
     
     // Get user data
@@ -98,13 +104,89 @@ async function handleAnalyzeProfile(message) {
     }
     
     try {
-        console.log('Calling Gemini API...');
-        const response = await callGeminiAPI(username, userData, question, apiKey);
+        let response;
+        if (shouldUseHackClub) {
+            console.log('Calling Hack Club API...');
+            response = await callHackClubAPI(username, userData, question);
+        } else {
+            console.log('Calling Gemini API...');
+            response = await callGeminiAPI(username, userData, question, apiKey);
+        }
         console.log('API response received');
         return { answer: response };
     } catch (error) {
-        console.error('Error calling Gemini API:', error);
+        console.error('Error calling API:', error);
         return { error: `API Error: ${error.message}` };
+    }
+}
+
+// Call Hack Club API
+async function callHackClubAPI(username, userData, question) {
+    console.log('callHackClubAPI called with:', { username, question });
+
+    // Prepare the context from user data
+    let context = `You are analyzing the Reddit profile of user "u/${username}". `;
+
+    if (userData.posts && userData.posts.length > 0) {
+        context += `\n\nPOSTS (${userData.posts.length} total):\n`;
+        userData.posts.forEach((post, index) => {
+            context += `${index + 1}. [${post.subreddit}] "${post.title}" (${post.score} points)\n`;
+            if (post.body) {
+                context += `   Body: ${post.body.substring(0, 200)}${post.body.length > 200 ? '...' : ''}\n`;
+            }
+        });
+    }
+
+    if (userData.comments && userData.comments.length > 0) {
+        context += `\n\nCOMMENTS (${userData.comments.length} total):\n`;
+        userData.comments.forEach((comment, index) => {
+            context += `${index + 1}. [${comment.subreddit}] ${comment.body.substring(0, 150)}${comment.body.length > 150 ? '...' : ''} (${comment.score} points)\n`;
+        });
+    }
+
+    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments if needed, but DO NOT refer to them by their numbered order (don't say "comment 22" or "post 5" etc). Instead, reference them by their content, subreddit, or title.\n\nIMPORTANT: Format your response using markdown (use **bold** for emphasis, *italics* for highlights, \`code\` for usernames/subreddits, and bullet points for lists). Keep your response concise, unless if you feel as if it should be longer.`;
+
+    console.log('Context prepared, length:', context.length);
+    console.log('Making API call to Hack Club...');
+
+    try {
+        const response = await fetch('https://ai.hackclub.com/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                messages: [
+                    {
+                        role: 'user',
+                        content: context
+                    }
+                ]
+            })
+        });
+
+        console.log('API response status:', response.status);
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('API error response:', errorText);
+            throw new Error(`Hack Club API error (${response.status}): ${errorText}`);
+        }
+
+        const data = await response.json();
+        console.log('API response data:', data);
+
+        if (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+            const result = data.choices[0].message.content;
+            console.log('Extracted result:', result);
+            return result;
+        } else {
+            console.error('Unexpected response format:', data);
+            throw new Error('Unexpected response format from Hack Club API');
+        }
+    } catch (error) {
+        console.error('Error calling Hack Club API:', error);
+        throw error;
     }
 }
 
@@ -132,7 +214,7 @@ async function callGeminiAPI(username, userData, question, apiKey) {
         });
     }
     
-    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments if needed.\n\nIMPORTANT: Format your response using markdown (use **bold** for emphasis, *italics* for highlights, \`code\` for usernames/subreddits, and bullet points for lists). Keep your response concise, unless if you feel as if it should be longer.`;
+    context += `\n\nUser Question: ${question}\n\nPlease provide a helpful analysis based on the available data. Be specific and reference actual posts/comments if needed, but DO NOT refer to them by their numbered order (don't say "comment 22" or "post 5" etc). Instead, reference them by their content, subreddit, or title.\n\nIMPORTANT: Format your response using markdown (use **bold** for emphasis, *italics* for highlights, \`code\` for usernames/subreddits, and bullet points for lists). Keep your response concise, unless if you feel as if it should be longer.`;
     
     console.log('Context prepared, length:', context.length);
     console.log('Making API call to Gemini...');

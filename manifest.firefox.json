@@ -11,7 +11,8 @@
   ],
   "host_permissions": [
     "*://*.reddit.com/*",
-    "https://generativelanguage.googleapis.com/*"
+    "https://generativelanguage.googleapis.com/*",
+    "https://ai.hackclub.com/*"
   ],
 
   "action": {
