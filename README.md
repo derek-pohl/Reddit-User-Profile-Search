@@ -5,20 +5,20 @@ A browser extension that provides the ability to search into Reddit user profile
 ## Installation
 
 ### Chrome/Chromium
-1. Download the latest release from the chrome web store or build from source
+1. Download the latest release from the [chrome web store](https://chromewebstore.google.com/detail/reddit-user-profile-searc/nkelbchckfcooepnoidinmogbpjdlphk) or build from source
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
 4. Click "Load unpacked" and select the `dist/chromium` folder
 
 ### Firefox
-1. Download the latest release from the firefox add on store or build from source
+1. Download the latest release from the firefox add-on store (link will be added once add-on approved) or build from source
 2. Open Firefox and navigate to `about:debugging`
 3. Click "This Firefox" → "Load Temporary Add-on"
 4. Select the `manifest.json` file from the `dist/firefox` folder
 
 ## 🛠️ Setup & Configuration
 
-### Option 1: Hack Club API (Recommended)
+### Option 1: Hack Club API
 1. Install the extension
 2. The Hack Club API is enabled by default - no setup required!
 3. Start analyzing profiles immediately
