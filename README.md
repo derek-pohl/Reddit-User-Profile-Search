@@ -11,7 +11,7 @@ A browser extension that provides the ability to search into Reddit user profile
 4. Click "Load unpacked" and select the `dist/chromium` folder
 
 ### Firefox
-1. Download the latest release from the firefox add-on store (link will be added once add-on approved) or build from source
+1. Download the latest release from the [firefox add-on store](https://addons.mozilla.org/en-US/firefox/addon/reddit-user-profile-search/) or build from source
 2. Open Firefox and navigate to `about:debugging`
 3. Click "This Firefox" → "Load Temporary Add-on"
 4. Select the `manifest.json` file from the `dist/firefox` folder
